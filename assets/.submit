@@ -1,0 +1,11 @@
+# Submit server .submit file for
+#  Course CMSC389E
+#  Project 2: ALU Adders
+
+courseName=CMSC389E
+semester=202001
+projectNumber=2
+courseKey=f9d43c72fd3af873
+authentication.type=cas
+baseURL=https://submit.cs.umd.edu:443/spring2020
+submitURL=https://submit.cs.umd.edu:443/spring2020/eclipse/SubmitProjectViaEclipse
