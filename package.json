@@ -21,10 +21,10 @@
     "express-fileupload": "^1.1.6",
     "line-reader": "^0.4.0",
     "n-readlines": "^1.0.0",
-    "unzipper": "^0.10.10"
+    "unzipper": "^0.10.10",
+    "errorhandler": "^1.5.1"
   },
   "devDependencies": {
-    "errorhandler": "^1.5.1",
     "nodemon": "^2.0.2"
   }
 }
