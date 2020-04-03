@@ -4,9 +4,10 @@ const LineByLine = require("n-readlines");
 const childProcess = require("child_process");
 const axios = require("axios");
 const constants = require("../constants");
+const Path = require("path");
 
 module.exports = app => {
-  app.post("/upload", async (req, res) => {
+  app.post("/api/upload", async (req, res) => {
     let files = req.files;
     let uname = req.body.uname;
     let password = req.body.password;
@@ -28,6 +29,14 @@ module.exports = app => {
     );
 
     const submitFileData = submitFileResponse.data;
+
+    if (!fs.existsSync("input/")) {
+      fs.mkdirSync("input/");
+    }
+
+    if (!fs.existsSync("output/")) {
+      fs.mkdirSync("output/");
+    }
 
     fs.writeFile(storedFileName, files[Object.keys(files)[0]].data, err => {
       if (err) {
@@ -72,10 +81,17 @@ module.exports = app => {
             line = liner.next().toString();
           }
 
-          // makes sure data directory exists
-          fs.mkdirSync("data/" + uname + "/proj" + projectNumber, {
-            recursive: true
-          });
+          if (!fs.existsSync("data/")) {
+            fs.mkdirSync("data/");
+          }
+
+          if (!fs.existsSync("data/" + uname + "/")) {
+            fs.mkdirSync("data/" + uname + "/");
+          }
+
+          if (!fs.existsSync("data/" + uname + "/proj" + projectNumber + "/")) {
+            fs.mkdirSync("data/" + uname + "/proj" + projectNumber + "/");
+          }
 
           const resultsFilePath =
             "data/" + uname + "/proj" + projectNumber + "/results.txt";
@@ -96,6 +112,10 @@ module.exports = app => {
                 projectNumber +
                 "/recompiledsubmit.jar"
             );
+            const dummyJavaFileCopy = fs.copyFileSync(
+              "assets/Dummy.java",
+              "data/" + uname + "/proj" + projectNumber + "/Dummy.java"
+            );
             const submitFileWrite = fs.writeFileSync(
               submitFilePath,
               submitFileData
@@ -111,6 +131,9 @@ module.exports = app => {
                   return res.status(500).send({ message: err });
                 }
 
+                deleteFolderRecursive("data/" + uname);
+                deleteFolderRecursive("input/");
+                deleteFolderRecursive("output/");
                 return res.status(200).send({ message: stdout });
               }
             );
@@ -123,4 +146,20 @@ module.exports = app => {
         });
     });
   });
+};
+
+const deleteFolderRecursive = function(path) {
+  if (fs.existsSync(path)) {
+    fs.readdirSync(path).forEach((file, index) => {
+      const curPath = Path.join(path, file);
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // recurse
+        deleteFolderRecursive(curPath);
+      } else {
+        // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
 };
