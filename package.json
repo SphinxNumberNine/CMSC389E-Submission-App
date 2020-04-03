@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "node index.js",
     "dev": "nodemon index.js",
     "start": "node index.js",
+    "client": "npm run start --prefix client",
+    "prod": "concurrently \"npm run server\" \"npm run client\"",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "author": "Ashwath Krishnan",
@@ -15,14 +18,15 @@
     "axios": "^0.19.2",
     "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
+    "concurrently": "^5.1.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
+    "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "express-fileupload": "^1.1.6",
     "line-reader": "^0.4.0",
     "n-readlines": "^1.0.0",
-    "unzipper": "^0.10.10",
-    "errorhandler": "^1.5.1"
+    "unzipper": "^0.10.10"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"

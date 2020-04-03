@@ -1,0 +1,84 @@
+Starting tests...
+In: iCNTRL3 iCNTRL2 iCNTRL1 iCNTRL0 iA2 iA1 iA0 iB2 iB1 iB0
+Out: oBus2 oBus1 oBus0
+
+In:       0 0 0 0 1 0 1 0 1 0
+Out:     1 1 1
+Result: 1 1 1
+
+In:       0 0 0 0 1 1 1 1 1 1
+Out:     0 0 0
+Result: 0 0 0
+
+In:       0 0 0 1 1 1 1 1 1 1
+Out:     1 1 1
+Result: 1 1 1
+
+In:       0 0 0 1 0 1 0 1 0 1
+Out:     0 0 0
+Result: 0 0 0
+
+In:       0 0 1 0 0 0 0 1 1 1
+Out:     1 1 1
+Result: 1 1 1
+
+In:       0 0 1 0 1 0 0 0 0 0
+Out:     1 0 0
+Result: 1 0 0
+
+In:       0 0 1 1 0 1 1 1 0 0
+Out:     1 1 1
+Result: 1 1 1
+
+In:       0 0 1 1 1 0 0 1 0 0
+Out:     0 0 0
+Result: 0 0 0
+
+In:       1 0 1 1 1 0 0 0 0 1
+Out:     0 1 1
+Result: 0 1 1
+
+In:       1 0 1 1 0 0 0 0 0 0
+Out:     0 0 0
+Result: 0 0 0
+
+In:       0 1 0 1 0 0 1 1 1 1
+Out:     1 1 1
+Result: 1 1 1
+
+In:       0 1 0 1 0 0 0 1 1 1
+Out:     0 0 0
+Result: 0 0 0
+
+In:       0 1 1 0 0 1 1 1 1 1
+Out:     1 1 0
+Result: 1 1 0
+
+In:       0 1 1 0 0 0 0 0 0 0
+Out:     0 0 0
+Result: 0 0 0
+
+In:       0 1 1 1 1 1 0 1 1 1
+Out:     0 1 1
+Result: 0 1 1
+
+In:       0 1 1 1 0 0 1 0 0 0
+Out:     0 0 0
+Result: 0 0 0
+
+In:       1 1 1 1 1 0 1 0 1 0
+Out:     0 0 1
+Result: 0 0 1
+
+In:       1 1 1 1 0 0 1 1 0 0
+Out:     0 0 0
+Result: 0 0 0
+
+In:       1 0 0 1 1 1 1 1 1 1
+Out:     0 0 0
+Result: 0 0 0
+
+In:       1 0 0 1 0 0 0 1 0 1
+Out:     1 1 1
+Result: 1 1 1
+Testing complete.

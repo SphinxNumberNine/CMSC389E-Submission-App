@@ -16,7 +16,8 @@ class App extends Component {
     this.state = {
       selectedFile: null,
       uname: "",
-      password: ""
+      password: "",
+      result: null
     };
   }
 
@@ -44,19 +45,18 @@ class App extends Component {
     formData.append("uname", this.state.uname);
     formData.append("password", this.state.password);
 
-    let resp = await axios.post("/api/upload", formData, {
+    let resp = await axios.post("http://cmsc389e.cs.umd.edu:5000/api/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" }
     });
 
     if (resp.status == 200) {
-      console.log("SUCCESS");
+      this.setState({ result: "Success!" });
     } else {
-      console.log("FAILURE");
+      this.setState({ result: "Something went wrong, please try again!" });
     }
   };
 
   render() {
-    console.log(this.state);
     return (
       <div className="App">
         <Typography variant="h2" className="Title">
@@ -140,6 +140,8 @@ class App extends Component {
         >
           Submit
         </Button>
+	<div style={{ margin: "30px" }}></div>
+	{this.renderResult()}
       </div>
     );
   }
@@ -151,6 +153,12 @@ class App extends Component {
           Selected File: {this.state.selectedFile.name}
         </Typography>
       );
+    }
+  }
+
+  renderResult() {
+    if(this.state.result) {
+	return (<Typography variant="body1">{this.state.result}</Typography>);
     }
   }
 }
