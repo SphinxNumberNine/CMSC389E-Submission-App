@@ -6,6 +6,8 @@ const axios = require("axios");
 const constants = require("../constants");
 const Path = require("path");
 
+const appDir = Path.dirname(require.main.filename) + "/";
+
 module.exports = app => {
   app.post("/api/upload", async (req, res) => {
     let files = req.files;
@@ -20,7 +22,7 @@ module.exports = app => {
       ".zip",
       ""
     );
-    const storedFileName = "input/" + uploadedFileName + ".zip";
+    const storedFileName = appDir + "input/" + uploadedFileName + ".zip";
 
     const projectNumber = uploadedFileName.slice(-1);
 
@@ -30,12 +32,12 @@ module.exports = app => {
 
     const submitFileData = submitFileResponse.data;
 
-    if (!fs.existsSync("input/")) {
-      fs.mkdirSync("input/");
+    if (!fs.existsSync(appDir + "input/")) {
+      fs.mkdirSync(appDir + "input/");
     }
 
-    if (!fs.existsSync("output/")) {
-      fs.mkdirSync("output/");
+    if (!fs.existsSync(appDir + "output/")) {
+      fs.mkdirSync(appDir + "output/");
     }
 
     fs.writeFile(storedFileName, files[Object.keys(files)[0]].data, err => {
@@ -46,7 +48,7 @@ module.exports = app => {
         });
       }
 
-      const outputPath = "output/";
+      const outputPath = appDir + "output/";
 
       fs.createReadStream(storedFileName)
         .pipe(unzipper.Extract({ path: outputPath }))
@@ -81,23 +83,29 @@ module.exports = app => {
             line = liner.next().toString();
           }
 
-          if (!fs.existsSync("data/")) {
-            fs.mkdirSync("data/");
+          if (!fs.existsSync(appDir + "data/")) {
+            fs.mkdirSync(appDir + "data/");
           }
 
-          if (!fs.existsSync("data/" + uname + "/")) {
-            fs.mkdirSync("data/" + uname + "/");
+          if (!fs.existsSync(appDir + "data/" + uname + "/")) {
+            fs.mkdirSync(appDir + "data/" + uname + "/");
           }
 
-          if (!fs.existsSync("data/" + uname + "/proj" + projectNumber + "/")) {
-            fs.mkdirSync("data/" + uname + "/proj" + projectNumber + "/");
+          if (
+            !fs.existsSync(
+              appDir + "data/" + uname + "/proj" + projectNumber + "/"
+            )
+          ) {
+            fs.mkdirSync(
+              appDir + "data/" + uname + "/proj" + projectNumber + "/"
+            );
           }
 
           const resultsFilePath =
-            "data/" + uname + "/proj" + projectNumber + "/results.txt";
+            appDir + "data/" + uname + "/proj" + projectNumber + "/results.txt";
 
           const submitFilePath =
-            "data/" + uname + "/proj" + projectNumber + "/.submit";
+            appDir + "data/" + uname + "/proj" + projectNumber + "/.submit";
 
           try {
             const resultsFileWrite = fs.writeFileSync(
@@ -105,16 +113,17 @@ module.exports = app => {
               resultsFileText
             );
             const submitJarCopy = fs.copyFileSync(
-              "assets/recompiledsubmit.jar",
-              "data/" +
+              appDir + "assets/recompiledsubmit.jar",
+              appDir +
+                "data/" +
                 uname +
                 "/proj" +
                 projectNumber +
                 "/recompiledsubmit.jar"
             );
             const dummyJavaFileCopy = fs.copyFileSync(
-              "assets/Dummy.java",
-              "data/" + uname + "/proj" + projectNumber + "/Dummy.java"
+              appDir + "assets/Dummy.java",
+              appDir + "data/" + uname + "/proj" + projectNumber + "/Dummy.java"
             );
             const submitFileWrite = fs.writeFileSync(
               submitFilePath,
@@ -122,7 +131,7 @@ module.exports = app => {
             );
             let submitCommand =
               "java -jar " + "./recompiledsubmit.jar " + uname + " " + password;
-            let execPath = "data/" + uname + "/proj" + projectNumber;
+            let execPath = appDir + "data/" + uname + "/proj" + projectNumber;
             let submitProcess = childProcess.exec(
               submitCommand,
               { cwd: execPath },
@@ -131,9 +140,9 @@ module.exports = app => {
                   return res.status(500).send({ message: err });
                 }
 
-                deleteFolderRecursive("data/" + uname);
-                deleteFolderRecursive("input/");
-                deleteFolderRecursive("output/");
+                deleteFolderRecursive(appDir + "data/" + uname);
+                deleteFolderRecursive(appDir + "input/");
+                deleteFolderRecursive(appDir + "output/");
                 return res.status(200).send({ message: stdout });
               }
             );
