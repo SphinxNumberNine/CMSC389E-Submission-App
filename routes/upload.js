@@ -10,148 +10,175 @@ const appDir = Path.dirname(require.main.filename) + "/";
 
 module.exports = app => {
   app.post("/api/upload", async (req, res) => {
-    let files = req.files;
-    let uname = req.body.uname;
-    let password = req.body.password;
+    try {
+      let files = req.files;
+      let uname = req.body.uname;
+      let password = req.body.password;
 
-    if (!files || Object.keys(files).length === 0) {
-      return res.status(400).send("No files were uploaded.");
-    }
-
-    const uploadedFileName = files[Object.keys(files)[0]].name.replace(
-      ".zip",
-      ""
-    );
-    const storedFileName = appDir + "input/" + uploadedFileName + ".zip";
-
-    const projectNumber = uploadedFileName.slice(-1);
-
-    const submitFileResponse = await axios.get(
-      constants.projectsUrl + "/proj" + projectNumber + "submit"
-    );
-
-    const submitFileData = submitFileResponse.data;
-
-    if (!fs.existsSync(appDir + "input/")) {
-      fs.mkdirSync(appDir + "input/");
-    }
-
-    if (!fs.existsSync(appDir + "output/")) {
-      fs.mkdirSync(appDir + "output/");
-    }
-
-    fs.writeFile(storedFileName, files[Object.keys(files)[0]].data, err => {
-      if (err) {
-        return res.status(400).send({
-          err,
-          message: "FAILED"
-        });
+      if (!files || Object.keys(files).length === 0) {
+        return res.status(400).send("No files were uploaded.");
       }
 
-      const outputPath = appDir + "output/";
+      const uploadedFileName = files[Object.keys(files)[0]].name.replace(
+        ".zip",
+        ""
+      );
+      const storedFileName = appDir + "input/" + uploadedFileName + ".zip";
 
-      fs.createReadStream(storedFileName)
-        .pipe(unzipper.Extract({ path: outputPath }))
-        .on("close", () => {
-          const resultsLocation =
-            "output/" + uploadedFileName + "/test_logs.txt";
-          const liner = new LineByLine(resultsLocation);
+      const projectNumber = uploadedFileName.slice(-1);
 
-          let resultsFileText = "";
+      const submitFileResponse = await axios.get(
+        constants.projectsUrl + "/proj" + projectNumber + "submit"
+      );
 
-          for (let i = 0; i < 4; i++) {
-            //getting rid of the first 4 lines of text, which are largely junk
-            liner.next();
-          }
+      const submitFileData = submitFileResponse.data;
 
-          let line = "_"; //initial setting of line to exist
-          while (line == "" || (line && line != "Testing complete.")) {
-            const inLine = liner.next().toString();
-            let outLine = liner.next().toString();
-            let expectedLine = liner.next().toString();
+      if (!fs.existsSync(appDir + "input/")) {
+        fs.mkdirSync(appDir + "input/");
+      }
 
-            outLine = outLine.replace("Out:", "");
-            outLine = outLine.trim();
+      if (!fs.existsSync(appDir + "output/")) {
+        fs.mkdirSync(appDir + "output/");
+      }
 
-            expectedLine = expectedLine.replace("Result:", "");
-            expectedLine = expectedLine.trim();
+      fs.writeFile(storedFileName, files[Object.keys(files)[0]].data, err => {
+        if (err) {
+          return res.status(400).send({
+            err,
+            message: "FAILED"
+          });
+        }
 
-            resultsFileText += outLine + "\n";
-            resultsFileText += expectedLine + "\n";
-            resultsFileText += "--\n";
+        const outputPath = appDir + "output/";
 
-            line = liner.next().toString();
-          }
+        fs.createReadStream(storedFileName)
+          .pipe(unzipper.Extract({ path: outputPath }))
+          .on("close", () => {
+            const resultsLocation =
+              "output/" + uploadedFileName + "/test_logs.txt";
 
-          if (!fs.existsSync(appDir + "data/")) {
-            fs.mkdirSync(appDir + "data/");
-          }
+            if (!fs.existsSync(resultsLocation)) {
+              return res
+                .status(401)
+                .send({
+                  message:
+                    "Your inner folder prior to the zip was likely not named in the proper format"
+                });
+            }
+            const liner = new LineByLine(resultsLocation);
 
-          if (!fs.existsSync(appDir + "data/" + uname + "/")) {
-            fs.mkdirSync(appDir + "data/" + uname + "/");
-          }
+            let resultsFileText = "";
 
-          if (
-            !fs.existsSync(
-              appDir + "data/" + uname + "/proj" + projectNumber + "/"
-            )
-          ) {
-            fs.mkdirSync(
-              appDir + "data/" + uname + "/proj" + projectNumber + "/"
-            );
-          }
+            for (let i = 0; i < 4; i++) {
+              //getting rid of the first 4 lines of text, which are largely junk
+              liner.next();
+            }
 
-          const resultsFilePath =
-            appDir + "data/" + uname + "/proj" + projectNumber + "/results.txt";
+            let line = "_"; //initial setting of line to exist
+            while (line == "" || (line && line != "Testing complete.")) {
+              const inLine = liner.next().toString();
+              let outLine = liner.next().toString();
+              let expectedLine = liner.next().toString();
 
-          const submitFilePath =
-            appDir + "data/" + uname + "/proj" + projectNumber + "/.submit";
+              outLine = outLine.replace("Out:", "");
+              outLine = outLine.trim();
 
-          try {
-            const resultsFileWrite = fs.writeFileSync(
-              resultsFilePath,
-              resultsFileText
-            );
-            const submitJarCopy = fs.copyFileSync(
-              appDir + "assets/recompiledsubmit.jar",
+              expectedLine = expectedLine.replace("Result:", "");
+              expectedLine = expectedLine.trim();
+
+              resultsFileText += outLine + "\n";
+              resultsFileText += expectedLine + "\n";
+              resultsFileText += "--\n";
+
+              line = liner.next().toString();
+            }
+
+            if (!fs.existsSync(appDir + "data/")) {
+              fs.mkdirSync(appDir + "data/");
+            }
+
+            if (!fs.existsSync(appDir + "data/" + uname + "/")) {
+              fs.mkdirSync(appDir + "data/" + uname + "/");
+            }
+
+            if (
+              !fs.existsSync(
+                appDir + "data/" + uname + "/proj" + projectNumber + "/"
+              )
+            ) {
+              fs.mkdirSync(
+                appDir + "data/" + uname + "/proj" + projectNumber + "/"
+              );
+            }
+
+            const resultsFilePath =
               appDir +
-                "data/" +
-                uname +
-                "/proj" +
-                projectNumber +
-                "/recompiledsubmit.jar"
-            );
-            const dummyJavaFileCopy = fs.copyFileSync(
-              appDir + "assets/Dummy.java",
-              appDir + "data/" + uname + "/proj" + projectNumber + "/Dummy.java"
-            );
-            const submitFileWrite = fs.writeFileSync(
-              submitFilePath,
-              submitFileData
-            );
-            let submitCommand =
-              "java -jar " + "./recompiledsubmit.jar " + uname + " " + password;
-            let execPath = appDir + "data/" + uname + "/proj" + projectNumber;
-            let submitProcess = childProcess.exec(
-              submitCommand,
-              { cwd: execPath },
-              (err, stdout, stderr) => {
-                if (err) {
-                  return res.status(500).send({ message: err });
-                }
+              "data/" +
+              uname +
+              "/proj" +
+              projectNumber +
+              "/results.txt";
 
-                deleteFolderRecursive(appDir + "data/" + uname);
-                return res.status(200).send({ message: stdout });
-              }
-            );
-          } catch (err) {
-            console.log(err);
-            return res
-              .status(500)
-              .send({ message: "Writing Results to File Failed" });
-          }
-        });
-    });
+            const submitFilePath =
+              appDir + "data/" + uname + "/proj" + projectNumber + "/.submit";
+
+            try {
+              const resultsFileWrite = fs.writeFileSync(
+                resultsFilePath,
+                resultsFileText
+              );
+              const submitJarCopy = fs.copyFileSync(
+                appDir + "assets/recompiledsubmit.jar",
+                appDir +
+                  "data/" +
+                  uname +
+                  "/proj" +
+                  projectNumber +
+                  "/recompiledsubmit.jar"
+              );
+              const dummyJavaFileCopy = fs.copyFileSync(
+                appDir + "assets/Dummy.java",
+                appDir +
+                  "data/" +
+                  uname +
+                  "/proj" +
+                  projectNumber +
+                  "/Dummy.java"
+              );
+              const submitFileWrite = fs.writeFileSync(
+                submitFilePath,
+                submitFileData
+              );
+              let submitCommand =
+                "java -jar " +
+                "./recompiledsubmit.jar " +
+                uname +
+                " " +
+                password;
+              let execPath = appDir + "data/" + uname + "/proj" + projectNumber;
+              let submitProcess = childProcess.exec(
+                submitCommand,
+                { cwd: execPath },
+                (err, stdout, stderr) => {
+                  if (err) {
+                    return res.status(500).send({ message: err });
+                  }
+
+                  deleteFolderRecursive(appDir + "data/" + uname);
+                  return res.status(200).send({ message: stdout });
+                }
+              );
+            } catch (err) {
+              console.log(err);
+              return res
+                .status(500)
+                .send({ message: "Writing Results to File Failed" });
+            }
+          });
+      });
+    } catch (e) {
+      return res.status(500).send({ message: "Something went wrong" });
+    }
   });
 };
 
