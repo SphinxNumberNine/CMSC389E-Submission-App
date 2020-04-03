@@ -141,8 +141,6 @@ module.exports = app => {
                 }
 
                 deleteFolderRecursive(appDir + "data/" + uname);
-                deleteFolderRecursive(appDir + "input/");
-                deleteFolderRecursive(appDir + "output/");
                 return res.status(200).send({ message: stdout });
               }
             );
