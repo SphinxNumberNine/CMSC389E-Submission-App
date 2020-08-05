@@ -23,7 +23,7 @@
     "cors": "^2.8.5",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
-    "express-fileupload": "^1.1.6",
+    "express-fileupload": "^1.1.9",
     "line-reader": "^0.4.0",
     "n-readlines": "^1.0.0",
     "unzipper": "^0.10.10"
